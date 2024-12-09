@@ -1,38 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Registration</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Registration</title>
 </head>
+
 <body>
-    <h1>Register</h1>
-    <form action="/" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required><br><br>
- 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required><br><br>
- 
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br><br>
- 
-        <label for="role">Role:</label>
-        <select id="role" name="role">
-            <option value="reserver">Reserver</option>
-            <option value="administrator">Administrator</option>
-        </select><br><br>
- 
-        <label for="age">Age:</label>
-        <input type="number" id="age" name="age"><br><br>
-        
-        <label for="pseudonym">Pseudonym:</label><br>
-        <input type="text" id="pseudonym" name="pseudonym" required><br><br>
- 
-        <label for="consent">Consent Given:</label>
-        <input type="checkbox" id="consent" name="consent" checked><br><br>
- 
-        <button type="submit">Register</button>
-    </form>
+  <h1>Register</h1>
+  <form action="/" method="POST" autocomplete="off">
+    <!-- Username Input -->
+    <label for="username">Username:</label>
+    <input 
+      type="text" 
+      id="username" 
+      name="username" 
+      required 
+      maxlength="30" 
+      pattern="^[a-zA-Z0-9_-]+$"
+      title="Username can include letters, numbers, underscores, and hyphens."
+    >
+    <br><br>
+
+    <!-- Password Input -->
+    <label for="password">Password:</label>
+    <input 
+      type="password" 
+      id="password" 
+      name="password" 
+      required 
+      autocomplete="new-password" 
+      minlength="8" 
+      maxlength="64"
+      placeholder="Enter Password"
+    >
+    <br>
+    <small style="color: grey;">Password must be at least 8 characters long and contain uppercase, lowercase, and a number.</small>
+    <br><br>
+
+    <!-- Email Input -->
+    <label for="email">Email:</label>
+    <input 
+      type="email" 
+      id="email" 
+      name="email" 
+      required 
+      maxlength="50"
+    >
+    <br><br>
+
+    <!-- Role Dropdown -->
+    <label for="role">Role:</label>
+    <select id="role" name="role" required>
+      <option value="reserver">Reserver</option>
+      <option value="administrator">Administrator</option>
+    </select>
+    <br><br>
+
+    <!-- Age Input -->
+    <label for="age">Age:</label>
+    <input 
+      type="number" 
+      id="age" 
+      name="age" 
+      min="1" 
+      max="120" 
+    >
+    <br><br>
+
+    <!-- Consent Checkbox -->
+    <label for="consent">Consent Given:</label>
+    <input type="checkbox" id="consent" name="consent" checked required>
+    <br><br>
+
+    <!-- Submit -->
+    <button type="submit">Register</button>
+  </form>
 </body>
+
 </html>

@@ -2,57 +2,58 @@ import { Hono } from "https://deno.land/x/hono/mod.ts";
 import client from "./db/db.js";
 import * as bcrypt from "https://deno.land/x/bcrypt/mod.ts";
 
-// Initialize the Hono app
 const app = new Hono();
 
-// Middleware to secure headers
+// Middleware to enforce CSP & security headers
 app.use('*', async (c, next) => {
   c.header(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; frame-ancestors 'none';"
+    "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; frame-ancestors 'none'; form-action 'self';"
   );
   c.header("X-Frame-Options", "DENY");
+  c.header("X-Content-Type-Options", "nosniff");
   await next();
 });
 
-// Serve the registration page
+// Serve the registration form
 app.get('/', async (c) => {
   return c.html(await Deno.readTextFile('./views/register.html'));
 });
 
-// Handle user registration securely with parameterized query
+// Handle user registration
 app.post('/', async (c) => {
-  const body = await c.req.parseBody();
-  const username = body.username;
-  const password = body.password;
-  const email = body.email;
-  const role = body.role;
-  const age = body.age || null;
-  const consent = body.consent === "on";
-
   try {
-    // Hash the password securely with bcrypt
+    const body = await c.req.parseBody();
+    const username = body.username;
+    const password = body.password;
+    const email = body.email;
+    const role = body.role;
+    const age = body.age || null;
+    const consent = body.consent === "on";
+
+    const sanitizedUsername = username.replace(/[^a-zA-Z0-9_]/g, '');
+    const sanitizedEmail = email.replace(/[^a-zA-Z0-9@.]/g, '');
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Use parameterized query to prevent SQL Injection
-    const result = await client.queryArray(
-      `INSERT INTO abc123_users (username, password_hash, role, email, age, consent_given) 
+    await client.queryArray(
+      `INSERT INTO abc123_users (username, password_hash, role, email, age, consent_given)
        VALUES ($1, $2, $3, $4, $5, $6)`,
-      [username, hashedPassword, role, email, age, consent]
+      [sanitizedUsername, hashedPassword, role, sanitizedEmail, age, consent]
     );
 
     return c.text('User registered successfully!');
   } catch (error) {
-    console.error("Error during registration:", error);
-    return c.text('Error during registration', 500);
+    console.error("Database error:", error);
+    return c.text('An error occurred during registration.', 500);
   }
 });
 
-// Cleanup database connection on app stop
+// Close database connection when server stops
 app.on("stop", async () => {
   await client.end();
 });
 
-// Start the server and listen for requests
+// Start server
 Deno.serve(app.fetch);
